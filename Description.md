@@ -179,7 +179,8 @@ Výsledek trasování (bod 3) se označí jako odvozený a nabídne k verifikaci
 
 - **Cíl:** označit součástky se zanedbatelnou/nulovou spotřebou (blokovací kondenzátory,
   pull-up/pull-down rezistory…) → `⛔`, ostatní → `✅` (počítají se do spotřeby).
-- **Primární signál:** `componentKind` z ISCF (číselník — kap. 13) + typ/hodnota z BOM.
+- **Primární signál:** `componentKind` z ISCF (číselník DE/EN/CZ v `skills/cr8000-power-domain/SKILL.md`,
+  ověřený proti datům) + typ/hodnota z BOM.
 - **Konfigurovatelnost:**
   - parametry filtru (co se zařadí / co se filtruje),
   - filtr lze **zapnout/vypnout**,
@@ -346,9 +347,9 @@ flowchart TD
 ## 15. Otevřené body k rozhodnutí / doplnění
 
 1. ~~**Formát `power_map`**~~ — **rozhodnuto: HTML** (viz kap. 4.2). MD/XML zůstávají jen pro srovnání.
-2. **Číselník `componentKind`** (`102`, `103`, `104`, …) — mapování kód→třída pro spolehlivý filtr.
-   *(Lubor zkusí dodat; není záruka — v nejhorším odvodíme z dat: klastrování dle prefixu RefDes
-   + BOM `TYPE`/`COMMENT`.)*
+2. ~~**Číselník `componentKind`**~~ — **vyřešeno:** kompletní číselník (Function Type v CR8000
+   Design Editoru) ověřen křížovou kontrolou proti ISCF a založen v
+   `skills/cr8000-power-domain/SKILL.md` (DE/EN/CZ + výchozí chování filtru).
 3. **SpecPack** — zdroj/instalace MCP serveru. *(Lubor čeká na potvrzení ověřené verze; do té doby
    TBD, příp. dočasný fallback PyMuPDF/pdfplumber.)*
 4. **Kódování Partlistu** — detekce/normalizace (diakritika `°C`). *(navrhnu detekci UTF-8/CP1250)*

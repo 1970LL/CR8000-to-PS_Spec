@@ -1,0 +1,37 @@
+{
+  // Tasky projektu CR8000-to-PS_Spec.
+  // Sdílené přes Git (výjimka v .gitignore).
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "SpecPack: Build & Index datasheets",
+      "detail": "Per-komponenta (A5E) z potvrzeného párování: staging hardlinků + build + index do sdíleného rootu. Bez LLM.",
+      "type": "process",
+      "command": "C:\\Users\\z003z5xd\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "args": ["${workspaceFolder}\\python\\build_datasheet_workspaces.py"],
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "group": "build"
+    },
+    {
+      "label": "SpecPack: Full rebuild datasheets",
+      "detail": "Plný per-komponentní rebuild (zahodí a přestaví všechny artefakty) + index.",
+      "type": "process",
+      "command": "C:\\Users\\z003z5xd\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "args": ["${workspaceFolder}\\python\\build_datasheet_workspaces.py", "--full"],
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "group": "build"
+    },
+    {
+      "label": "Katalog: Partlist → component_catalog.md",
+      "detail": "Deterministicky sloučí Partlist na komponenty per A5E, přiřadí klíč a navrhne párování PDF. Bez LLM.",
+      "type": "process",
+      "command": "C:\\Users\\z003z5xd\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "args": ["${workspaceFolder}\\python\\build_component_catalog.py"],
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "group": "build"
+    }
+  ]
+}

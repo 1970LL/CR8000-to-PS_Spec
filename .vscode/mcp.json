@@ -1,11 +1,25 @@
 {
   // Konfigurace MCP serverů pro projekt CR8000-to-PS_Spec.
-  // TODO: doplnit SpecPack PDF MCP server (zdroj/instalaci dodá Lubor — viz Description.md kap. 15).
+  //
+  // SpecPack PDF MCP server — nainstalován GLOBÁLNĚ přes pipx (izolované venv,
+  // Python 3.11), příkaz: C:\Users\<user>\.local\bin\specpack.exe
+  // Zdroj (editable): D:\Code\Tools\specPack\specPack
+  //
+  // Argument "mcp" bere multi-workspace root se sdílenými indexy datasheetů:
+  //   D:\Code\Tools\specPack\workspaces
+  // POZOR: server nastartuje až po prvním `specpack build` + `specpack index`,
+  // který pod tímto rootem vytvoří <workspace>/index/specpack.db. Do té doby
+  // server hlásí "No workspace databases found".
   "servers": {
-    // "specpack": {
-    //   "command": "<TBD>",
-    //   "args": ["<TBD>"],
-    //   "type": "stdio"
-    // }
+    "specpack": {
+      "type": "stdio",
+      "command": "C:\\Users\\z003z5xd\\.local\\bin\\specpack.exe",
+      "args": ["mcp", "D:\\Code\\Tools\\specPack\\workspaces"],
+      // PyMuPDF jinak tiskne deprecation varování na stdout a poškodí JSON-RPC
+      // stream MCP. fd:2 přesměruje hlášky PyMuPDF na stderr.
+      "env": {
+        "PYMUPDF_MESSAGE": "fd:2"
+      }
+    }
   }
 }

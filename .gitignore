@@ -8,9 +8,10 @@ env/
 .pytest_cache/
 .ruff_cache/
 
-# VS Code (ponechat sdílené konfigurace: mcp.json, agents, instrukce)
+# VS Code (ponechat sdílené konfigurace: mcp.json, tasks.json, agents, instrukce)
 .vscode/*
 !.vscode/mcp.json
+!.vscode/tasks.json
 
 # OS / editor
 Thumbs.db
@@ -27,3 +28,9 @@ Desktop.ini
 *.pdf
 Data/**/datasheets/
 Documents/RBHW_a3_Version_12.1.pdf
+
+# Junction na externí zdroj datasheetů (odkaz, ne kopie) — negitovat.
+Data/MCP1x10/Components/
+
+# Generovaný SpecPack config (reprodukovatelný z build_datasheet_workspaces.py).
+Data/**/specpack.generated.yml
