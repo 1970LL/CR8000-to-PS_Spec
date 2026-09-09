@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>power_map — MCP1x10 (UKÁZKA: editovatelné HTML)</title>
+<style>
+  :root { font-family: Segoe UI, Arial, sans-serif; }
+  body { margin: 1rem; color: #1b1b1b; }
+  h1 { font-size: 1.2rem; }
+  .legend { font-size: .85rem; color: #444; margin-bottom: .5rem; }
+  .toolbar { margin: .5rem 0 1rem; display: flex; gap: .5rem; flex-wrap: wrap; }
+  button { padding: .4rem .8rem; cursor: pointer; }
+  table { border-collapse: collapse; width: 100%; font-size: .82rem; }
+  th, td { border: 1px solid #bbb; padding: .25rem .4rem; text-align: left; vertical-align: top; }
+  th { background: #f0f3f7; position: sticky; top: 0; }
+  td[contenteditable="true"]:focus { outline: 2px solid #3a7afe; background: #eef4ff; }
+  tr:nth-child(even) td { background: #fafbfc; }
+  .warn { background: #fff3cd !important; }
+  .skip { color: #999; }
+  caption { text-align: left; font-weight: 600; margin: 1rem 0 .3rem; }
+</style>
+</head>
+<body>
+  <h1>power_map — MCP1x10 <small>(UKÁZKA formátu: editovatelné HTML)</small></h1>
+  <div class="legend">
+    Buňky lze přímo přepisovat (klikni a piš). <b>power_state</b>: ✅ počítá se / ⛔ zanedbatelné.
+    <b>check</b>: prázdné = OK / ⚠️ nesoulad. <code>ds_*</code> se plní v kroku 3 (datasheety).
+  </div>
+  <div class="toolbar">
+    <button id="save">💾 Uložit (Chrome File System)</button>
+    <button id="download">⬇️ Stáhnout kopii</button>
+    <button id="addRow">➕ Přidat řádek</button>
+  </div>
+
+  <table id="pm">
+    <thead>
+      <tr>
+        <th>check</th><th>power_state</th><th>rail</th><th>rail_v</th><th>refdes</th><th>pin</th>
+        <th>a5e</th><th>type</th><th>item</th><th>value</th><th>tolerance</th><th>voltage</th>
+        <th>ds_v_min</th><th>ds_v_max</th><th>ds_curr_max</th><th>ds_curr_typ</th><th>source</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1202</td><td>8:VCC</td>
+        <td>A5E00063809</td><td>EEPROM2Kx8ser.</td><td>IC_EEPROM_2Kbitx8_10ms_SOP8</td><td></td><td></td><td></td>
+        <td></td><td></td><td></td><td></td><td>ds pending</td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D9</td><td>20:VCC</td>
+        <td>A5E56410869</td><td>74LV8T541</td><td>IC_INTERFACE_74LV8T541_1.65:5.5V_VSSOP-</td><td></td><td></td><td></td>
+        <td></td><td></td><td></td><td></td><td>ds pending</td>
+      </tr>
+      <tr class="warn">
+        <td>⚠️</td><td>✅</td><td>VDD2</td><td></td><td>D8</td><td>G2:7</td>
+        <td>A5E56245815</td><td></td><td>IC_DDR4_128MB_x16_+95°C_BGA_200</td><td></td><td></td><td></td>
+        <td></td><td></td><td></td><td></td><td>rail_v neznámé → dotaz na uživatele</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table id="totals">
+    <caption>Sumy po railech (doplní krok 5)</caption>
+    <thead>
+      <tr><th>rail</th><th>rail_v</th><th>sum ds_curr_max [mA]</th><th>sum ds_curr_typ [mA]</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>P3V3</td><td>3.3</td><td></td><td></td></tr>
+      <tr><td>VDD2</td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+<script>
+  // Všechny datové buňky jsou editovatelné.
+  function makeEditable() {
+    document.querySelectorAll('tbody td').forEach(td => td.contentEditable = 'true');
+  }
+  makeEditable();
+
+  document.getElementById('addRow').addEventListener('click', () => {
+    const tb = document.querySelector('#pm tbody');
+    const cols = document.querySelectorAll('#pm thead th').length;
+    const tr = document.createElement('tr');
+    for (let i = 0; i < cols; i++) { const td = document.createElement('td'); td.contentEditable = 'true'; tr.appendChild(td); }
+    tb.appendChild(tr);
+  });
+
+  function currentHTML() {
+    return '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  }
+
+  // Uložení zpět do souboru přes File System Access API (Chrome). Fallback = stažení.
+  let fileHandle = null;
+  document.getElementById('save').addEventListener('click', async () => {
+    try {
+      if (!fileHandle) {
+        fileHandle = await window.showSaveFilePicker({
+          suggestedName: 'power_map_MCP1x10.html',
+          types: [{ description: 'HTML', accept: { 'text/html': ['.html'] } }]
+        });
+      }
+      const w = await fileHandle.createWritable();
+      await w.write(currentHTML());
+      await w.close();
+      alert('Uloženo.');
+    } catch (e) { alert('Uložení zrušeno nebo nepodporováno: ' + e.message); }
+  });
+
+  document.getElementById('download').addEventListener('click', () => {
+    const blob = new Blob([currentHTML()], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'power_map_MCP1x10.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+</script>
+</body>
+</html>

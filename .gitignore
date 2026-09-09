@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# VS Code (ponechat sdílené konfigurace: mcp.json, agents, instrukce)
+.vscode/*
+!.vscode/mcp.json
+
+# OS / editor
+Thumbs.db
+Desktop.ini
+*~
+*.tmp
+*.bak
+
+# Generované výstupy (dočasné). Finální power_map/power_tree se verzují ručně dle potřeby.
+*.log

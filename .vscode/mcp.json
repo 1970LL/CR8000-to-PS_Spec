@@ -1,0 +1,11 @@
+{
+  // Konfigurace MCP serverů pro projekt CR8000-to-PS_Spec.
+  // TODO: doplnit SpecPack PDF MCP server (zdroj/instalaci dodá Lubor — viz Description.md kap. 15).
+  "servers": {
+    // "specpack": {
+    //   "command": "<TBD>",
+    //   "args": ["<TBD>"],
+    //   "type": "stdio"
+    // }
+  }
+}

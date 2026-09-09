@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- power_map — MCP1x10 (UKÁZKA formátu: XML). 3 reálné záznamy z ISCF/Partlist.
+     ds_* atributy se plní až v kroku 3 (datasheety) — zde záměrně z části prázdné. -->
+<power_map project="MCP1x10" source_date="20260825">
+
+  <!-- power_state: PASS = počítá se (✅) / SKIP = zanedbatelné (⛔)
+       check: OK / WARN (⚠️ nesoulad) -->
+
+  <entry check="OK" power_state="PASS">
+    <rail name="P3V3" v="3.3"/>
+    <component refdes="D1202" pin="8:VCC" a5e="A5E00063809" type="EEPROM2Kx8ser."
+               item="IC_EEPROM_2Kbitx8_10ms_SOP8" value="" tolerance="" voltage=""/>
+    <datasheet ds_v_min="" ds_v_max="" ds_curr_max="" ds_curr_typ="" source="ds pending"/>
+    <note>power_supply VCC=P3V3 odpovídá railu (křížová kontrola OK)</note>
+  </entry>
+
+  <entry check="OK" power_state="PASS">
+    <rail name="P3V3" v="3.3"/>
+    <component refdes="D9" pin="20:VCC" a5e="A5E56410869" type="74LV8T541"
+               item="IC_INTERFACE_74LV8T541_1.65:5.5V_VSSOP-" value="" tolerance="" voltage=""/>
+    <datasheet ds_v_min="" ds_v_max="" ds_curr_max="" ds_curr_typ="" source="ds pending"/>
+    <note>power_supply VCC=P3V3 odpovídá railu (křížová kontrola OK)</note>
+  </entry>
+
+  <entry check="WARN" power_state="PASS">
+    <rail name="VDD2" v=""/>
+    <component refdes="D8" pin="G2:7" a5e="A5E56245815" type=""
+               item="IC_DDR4_128MB_x16_+95°C_BGA_200" value="" tolerance="" voltage=""/>
+    <datasheet ds_v_min="" ds_v_max="" ds_curr_max="" ds_curr_typ="" source=""/>
+    <note>Multi-rail (VDD1/VDD2/VDDQ). rail_v neznámé → dotaz na uživatele.
+          item: opravená diakritika +95A??C → +95°C. type v BOM prázdný (OK).</note>
+  </entry>
+
+  <!-- Sumy po railech (doplní krok 5) -->
+  <rail_totals>
+    <rail name="P3V3" v="3.3" sum_curr_max_mA="" sum_curr_typ_mA=""/>
+    <rail name="VDD2" v="" sum_curr_max_mA="" sum_curr_typ_mA=""/>
+  </rail_totals>
+
+</power_map>
