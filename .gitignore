@@ -21,3 +21,9 @@ Desktop.ini
 
 # Generované výstupy (dočasné). Finální power_map/power_tree se verzují ručně dle potřeby.
 *.log
+
+# Datasheety a specifikace (PDF) do Gitu NEPATŘÍ — dodává je uživatel lokálně.
+# Platí pro RBHW_a3_Version_12.1 i všechny budoucí datasheety v projektu.
+*.pdf
+Data/**/datasheets/
+Documents/RBHW_a3_Version_12.1.pdf
