@@ -35,6 +35,8 @@
 | A5E56183107 | IC_MCU_P_MIMX9121CVVXCAB | Processor/IMX91IEC.pdf | confirmed | i.MX91 datasheet |
 | A5E56183107 | IC_MCU_P_MIMX9121CVVXCAB | Processor/IMX91RM.pdf | confirmed | i.MX91 reference manual |
 | A5E56183107 | IC_MCU_P_MIMX9121CVVXCAB | Processor/imx91_HW_design_guide.pdf | confirmed | i.MX91 HW design guide |
+| A5E54613593 | DIO_LED_MULTI_COLOUR_RGB | LED/DSE-0031501-23S-23B-R6GHBHC-A30-2A(HM)-V3.pdf | confirmed | RGB LED (49×, H601–H649); primární datasheet |
+| A5E54613593 | DIO_LED_MULTI_COLOUR_RGB | LED/Everlight VBU product introduction_20240917.pdf | confirmed | druhý zdroj RGB LED (sloučeno do jednoho A5E) |
 
 ## Rozhodnuto (uživatel)
 
@@ -42,26 +44,34 @@
 - **DDR4 128MB x16** (`A5E56245815`) → `W66…LPDDR4/X` (COMMENT ponechán DDR4).
 - **Load switch** (`A5E52725522`) → `TPS22950`.
 
-Krystaly/oscilátory a LED (méně důležité pro power analýzu) — přiřaď jen pokud chceš:
-`Oscilator/NDK_NZ2520SH_e.pdf`, `LED/DSE-0031501-…pdf`, `LED/Everlight VBU…pdf`.
+Krystaly/oscilátory (méně důležité pro power analýzu) — přiřaď jen pokud chceš:
+`Oscilator/NDK_NZ2520SH_e.pdf`.
 
-## Plánované (komponenta bude doplněna do Partlistu)
+## Plánované / předpostavené v indexu (příští verze schématu)
+
+> Tyto komponenty **nejsou v aktuálním Partlistu**, ale jsou **předpostavené v SpecPack indexu**
+> (předpokládané použití v další verzi schématu). Ponechány záměrně jako příprava — při plném
+> rebuildu z aktuálního Partlistu by z indexu vypadly.
 
 | a5e | komponenta | datasheet | status |
 |---|---|---|---|
-| A5E43636907 | IC_OTHER_FUNCTION_MAX17526_TQFN20 | Input Filter/MAX17526A-MAX17526C_Rev3_2021-11.pdf | proposed (future) |
+| A5E43636907 | IC_OTHER_FUNCTION_MAX17526_TQFN20 | Input Filter/MAX17526A-MAX17526C_Rev3_2021-11.pdf | pre-built (future) |
+| A5E33908377 | IC_SWITCH_TPS62097 | Buck/tps62097.pdf | pre-built (future) |
+| A5E50483598 | IC_VREG_POS_LM76005RNPR | Buck/lm76005.pdf | pre-built (future) |
+| A5E37725181 | REACTOR_470nH_5.9A | Inductor/A5E37725181_DB_WUEE_470nH_5.9A.pdf | pre-built (future) |
+| A5E46604141 | REACTOR_470nH_4.8A | Inductor/A5E46604141_DB_SMI_201610CDMCDDS_470nH_4.8A.pdf | pre-built (future) |
+| A5E47990248 | REACTOR_470nH_4.9A | Inductor/A5E47990248_DB_470nH_4.9A.pdf | pre-built (future) |
+| A5E53512827 | REACTOR_470nH_4.5A_201612 | Inductor/A5E53512827_DB_MUT_DFE201612E_470nH_4.5A.pdf | pre-built (future) |
 
 ## Osiřelá PDF (future/historické — bez protějšku v Partlistu, NEpárovat)
 
 Datasheety připravené k pozdějšímu použití nebo dříve zvažované a nakonec nepoužité:
 
-- `Buck/lm76005.pdf`, `Buck/tps62097.pdf` — žádná buck komponenta v Partlistu.
+> Pozn.: buck (`lm76005`, `tps62097`), induktory (`A5E37725181/46604141/47990248/53512827`) a
+> `MAX17526` byly přesunuty do sekce **Plánované / předpostavené v indexu** (viz výše).
+
 - `Ethernet_Switch/lan96459f … (managed mode) rev b.pdf` — LAN96459F, ne LAN96455S.
 - `Ethernet_Switch/lan96459f … (unmanaged mode) rev b.pdf` — dtto.
-- `Inductor/A5E37725181_DB_WUEE_470nH_5.9A.pdf` — power inductor (jiné A5E).
-- `Inductor/A5E46604141_DB_SMI_201610CDMCDDS_470nH_4.8A.pdf` — dtto.
-- `Inductor/A5E47990248_DB_470nH_4.9A.pdf` — dtto.
-- `Inductor/A5E53512827_DB_MUT_DFE201612E_470nH_4.5A.pdf` — dtto.
 - `quadraturencoder/stm/rm0490-…stm32c0…pdf` — kandidát MCU pro enkodér, neosazen.
 - `quadraturencoder/stm/stm32c011f4.pdf` — dtto.
 - `quadraturencoder/ti/mspm0c1105.pdf` — dtto.

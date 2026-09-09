@@ -227,6 +227,9 @@ Pro každý řádek `(RefDes, Rail, Pin)`:
 
 ## 9. SpecPack PDF — MCP server
 
+> **Průchozí návod celého datasheet workflow** (katalog → párování → index → `ds_*`):
+> [`Datasheet_HowTo.md`](Datasheet_HowTo.md).
+
 - Slouží k parsování datasheetů (PDF). **Není nainstalován** ve VS Code → nutná instalace
   ke globálnímu použití. *(Zdroj/instalaci dodá Lubor — kap. 13.)*
 - **Cache `Data/components_data.md`** (globální, sdílená napříč projekty):
