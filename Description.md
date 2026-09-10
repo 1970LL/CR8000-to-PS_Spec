@@ -114,15 +114,16 @@ výběr z menu `Output Format`. **Není to práce AI.**
 ## 4. Datový model `power_map` (rozhodnutí formátu)
 
 Vzor v zadání používá tři „dílčí tabulky" na jeden řádek součástky. Sjednocuji je do **jednoho
-širokého záznamu** na kombinaci `(RefDes, Rail, Pin)`. Multi-rail součástka (např. DDR `D8`) má
-tedy **více řádků**.
+širokého záznamu** na kombinaci `(RefDes, Rail)`. Multi-rail součástka (např. DDR `D8`) má tedy
+**více řádků** — jeden na rail. Je-li součástka na jednom railu připojena víc piny (např. víc
+`VCC` pinů), sloučí se do **jedné buňky** `pin` (jeden pin na řádek buňky).
 
 ### 4.1 Schéma sloupců
 
 | Sloupec | Zdroj | Jednotka | Poznámka |
 |---|---|---|---|
 | `check` | systém | — | stav: prázdné / ⚠️ (nesoulad) |
-| `power_state` | filtr (kap. 6) | — | ✅ počítá se / ⛔ zanedbatelné |
+| `power_state` | filtr (kap. 6) | — | ✅ počítá se / ⛔ zanedbatelné / *uzel* — blok toku energie (LDO/DC-DC, pojistky, feritové perly…, zpracuje `power_tree`) |
 | `rail` | ISCF `BEGIN_POWER` | — | název railu |
 | `rail_v` | dekodér (kap. 5) | V | hodnota napětí railu |
 | `refdes` | ISCF (= Partlist `EPL`) | — | referenční značení |
