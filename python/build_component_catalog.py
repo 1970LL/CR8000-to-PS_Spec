@@ -24,12 +24,55 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from parse_partlist import Component, aggregate_components, parse_partlist  # noqa: E402
+from parse_partlist import (  # noqa: E402
+    Component,
+    aggregate_components,
+    function_type,
+    parse_partlist,
+    refdes_prefix,
+)
 
 # --- Výchozí cesty (lze přepsat argumenty) --------------------------------------
 _PROJECT = Path(__file__).resolve().parent.parent
 DEFAULT_PARTLIST = _PROJECT / "Data" / "MCP1x10" / "20260825" / "Partlist_Test.txt"
 DEFAULT_COMPONENTS = _PROJECT / "Data" / "MCP1x10" / "Components"
+DEFAULT_PAIRING = _PROJECT / "Data" / "MCP1x10" / "20260825" / "datasheet_pairing.md"
+
+# Pořadí skupin (prefix RefDes) pro řazení katalogu jako BOM dokumentu.
+# HITL: uprav pořadí dle potřeby; neznámé prefixy jdou na konec.
+BOM_ORDER: list[str] = [
+    "R",   # rezistory
+    "C",   # kondenzátory
+    "V",   # diody, tranzistory (diskrétní polovodiče)
+    "L",   # cívky / tlumivky
+    "Z",   # filtry (EMI, feritové perly)
+    "B",   # krystaly
+    "G",   # oscilátory
+    "D",   # digitální IO
+    "N",   # analogové IO
+    "U",   # optočleny
+    "T",   # transformátory / měniče
+    "K",   # relé
+    "F",   # pojistky
+    "S",   # spínače / kódovací přepínače
+    "H",   # LED / žárovky
+    "X",   # konektory
+    "P",   # testpointy
+    "W",   # antény
+    "A",   # sestavy
+    "Q",   # ostatní
+]
+
+
+def _component_prefix(c: Component) -> str:
+    return refdes_prefix(c.refdes[0]) if c.refdes else ""
+
+
+def _bom_index(prefix: str) -> int:
+    try:
+        return BOM_ORDER.index(prefix)
+    except ValueError:
+        return len(BOM_ORDER)
 
 
 def _norm(text: str) -> str:
@@ -38,10 +81,56 @@ def _norm(text: str) -> str:
 
 
 def index_pdfs(components_dir: Path) -> list[tuple[str, Path]]:
-    """Rekurzivně najde PDF a vrátí (normalizovaný stem, cesta)."""
+    """Rekurzivně najde PDF a vrátí (normalizovaný stem, cesta).
+
+    Ignoruje složku ``Archive`` v libovolné úrovni (vyřazené / mimo scope PDF).
+    """
     if not components_dir.exists():
         return []
-    return [(_norm(pdf.stem), pdf) for pdf in sorted(components_dir.rglob("*.pdf"))]
+    out: list[tuple[str, Path]] = []
+    for pdf in sorted(components_dir.rglob("*.pdf")):
+        rel_parts = pdf.relative_to(components_dir).parts
+        if any(part.lower() == "archive" for part in rel_parts):
+            continue
+        out.append((_norm(pdf.stem), pdf))
+    return out
+
+
+def _read_text(path: Path) -> str:
+    raw = path.read_bytes()
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return raw.decode("cp1252", errors="replace")
+
+
+def load_pairing(path: Path) -> tuple[dict[str, list[tuple[str, str]]], set[str]]:
+    """Načte ``datasheet_pairing.md`` (HITL source of truth).
+
+    Vrací:
+      - ``confirmed`` : a5e -> [(datasheet_rel, pozn.)] jen pro status ``confirmed*``.
+      - ``known_rel`` : množina relativních cest datasheetů zmíněných v tabulkách
+        (confirmed i pre-built/future), normalizovaná na lowercase s ``/``. Slouží
+        k vyloučení z „Nepárovaná PDF".
+    """
+    confirmed: dict[str, list[tuple[str, str]]] = {}
+    known: set[str] = set()
+    if not path.exists():
+        return confirmed, known
+    for line in _read_text(path).splitlines():
+        if not line.lstrip().startswith("| A5E"):
+            continue
+        cells = [c.strip() for c in line.split("|")]
+        if len(cells) < 5:
+            continue
+        a5e, datasheet, status = cells[1], cells[3], cells[4]
+        note = cells[5] if len(cells) >= 6 else ""
+        if not (a5e.startswith("A5E") and datasheet):
+            continue
+        known.add(datasheet.replace("\\", "/").lower())
+        if status.lower().startswith("confirmed"):
+            confirmed.setdefault(a5e, []).append((datasheet, note))
+    return confirmed, known
 
 
 def propose_datasheets(
@@ -80,30 +169,55 @@ def _cell(text: str) -> str:
 def build_catalog_md(
     components: list[Component],
     proposals: dict[str, list[tuple[Path, bool]]],
+    confirmed: dict[str, list[tuple[str, str]]],
+    known_rel: set[str],
     components_dir: Path,
     partlist_path: Path,
+    pairing_path: Path,
 ) -> str:
-    """Sestaví markdown katalog + sekci nepárovaných PDF."""
+    """Sestaví markdown katalog (řazený dle Function Type) + sekci nepárovaných PDF.
+
+    Datasheets sloupec: potvrzené páry z ``datasheet_pairing.md`` (✅, autoritativní) mají
+    přednost; jinak heuristický návrh dle A5E (✓) / MPN (?). ``known_rel`` (datasheety
+    zmíněné v párování, confirmed i pre-built) se vyloučí z „Nepárovaná".
+    """
     lines: list[str] = []
     lines.append("# Katalog komponent — mapa A5E → klíč → datasheet")
     lines.append("")
     lines.append(f"> Zdroj: `{partlist_path.name}`. Vygenerováno deterministicky (bez LLM).")
-    lines.append("> Sloupec **datasheets**: `✓` = A5E v názvu souboru (silná shoda), "
-                 "`?` = návrh dle MPN (HITL verifikace).")
+    lines.append("> Řazeno dle **Function Type** (BOM pořadí, odvozeno z prefixu RefDes).")
+    lines.append("> Sloupec **datasheets**: `✅` = potvrzeno v "
+                 f"`{pairing_path.name}`; `✓` = A5E v názvu souboru; `?` = návrh dle MPN (HITL).")
     lines.append("")
-    lines.append("| key | a5e | mpn | kind | comment | qty | refdes | datasheets |")
-    lines.append("|---|---|---|---|---|---:|---|---|")
+    lines.append("| ft | key | a5e | mpn | kind | comment | qty | refdes | datasheets |")
+    lines.append("|---|---|---|---|---|---|---:|---|---|")
 
     proposed_pdfs: set[Path] = set()
-    for c in components:
-        ds = proposals.get(c.a5e, [])
-        proposed_pdfs.update(p for p, _ in ds)
-        ds_cell = "; ".join(
-            f"{p.name} {'✓' if strong else '`?`'}" for p, strong in ds
-        ) if ds else "—"
+    components_sorted = sorted(
+        components,
+        key=lambda c: (
+            _bom_index(_component_prefix(c)),
+            function_type(c.refdes[0] if c.refdes else "")[0],
+            c.comment.upper(),
+            c.a5e,
+        ),
+    )
+    for c in components_sorted:
+        code, label = function_type(c.refdes[0] if c.refdes else "")
+        ft_cell = f"{label} ({code})" if code != 999 else "?"
+        conf = confirmed.get(c.a5e, [])
+        if conf:
+            ds_cell = "; ".join(f"{Path(rel).name} ✅" for rel, _ in conf)
+        else:
+            ds = proposals.get(c.a5e, [])
+            proposed_pdfs.update(p for p, _ in ds)
+            ds_cell = "; ".join(
+                f"{p.name} {'✓' if strong else '`?`'}" for p, strong in ds
+            ) if ds else "—"
         lines.append(
             "| " + " | ".join(
                 [
+                    _cell(ft_cell),
                     _cell(c.key),
                     _cell(c.a5e),
                     _cell(c.mpn),
@@ -116,18 +230,26 @@ def build_catalog_md(
             ) + " |"
         )
 
-    # Nepárovaná PDF (existují na disku, ale žádný návrh je nepřiřadil)
+    # Nepárovaná PDF: na disku, ale nezmíněná v párování a bez heuristického návrhu.
     all_pdfs = [p for _, p in index_pdfs(components_dir)]
-    unmatched = [p for p in all_pdfs if p not in proposed_pdfs]
+    unmatched: list[Path] = []
+    for p in all_pdfs:
+        rel = p.relative_to(components_dir) if components_dir in p.parents else Path(p.name)
+        rel_norm = str(rel).replace("\\", "/").lower()
+        if rel_norm in known_rel or p in proposed_pdfs:
+            continue
+        unmatched.append(p)
     lines.append("")
     lines.append("## Nepárovaná PDF (k ručnímu přiřazení A5E)")
+    lines.append("")
+    lines.append(f"> Vyloučeny datasheety potvrzené/plánované v `{pairing_path.name}`.")
     lines.append("")
     if unmatched:
         for p in unmatched:
             rel = p.relative_to(components_dir) if components_dir in p.parents else p.name
             lines.append(f"- `{rel}`")
     else:
-        lines.append("_(žádná)_")
+        lines.append("_(žádná — vše přiřazeno v párování)_")
     lines.append("")
     return "\n".join(lines)
 
@@ -142,6 +264,8 @@ def main() -> None:
                         help="Výstupní markdown. Výchozí: component_catalog.md vedle Partlistu.")
     parser.add_argument("--no-propose", action="store_true",
                         help="Nenavrhovat párování s PDF.")
+    parser.add_argument("--pairing", type=Path, default=None,
+                        help="datasheet_pairing.md (potvrzené páry). Výchozí: vedle Partlistu.")
     args = parser.parse_args()
 
     if not args.partlist.exists():
@@ -155,22 +279,30 @@ def main() -> None:
     rows = parse_partlist(text)
     components = aggregate_components(rows)
 
+    pairing_path = args.pairing or (args.partlist.parent / "datasheet_pairing.md")
+    confirmed, known_rel = load_pairing(pairing_path)
+
     proposals: dict[str, list[tuple[Path, bool]]] = {}
     if not args.no_propose:
         pdf_index = index_pdfs(args.components)
         for c in components:
+            if c.a5e in confirmed:
+                continue  # potvrzeno v párování → heuristiku nepotřebujeme
             hits = propose_datasheets(c.a5e, c.mpn, pdf_index)
             if hits:
                 proposals[c.a5e] = hits
 
     out_path = args.out or (args.partlist.parent / "component_catalog.md")
-    md = build_catalog_md(components, proposals, args.components, args.partlist)
+    md = build_catalog_md(
+        components, proposals, confirmed, known_rel, args.components, args.partlist, pairing_path
+    )
     out_path.write_text(md, encoding="utf-8")
 
     n_ds = sum(len(v) for v in proposals.values())
     print(f"Řádků Partlistu:      {len(rows)}")
     print(f"Unikátních komponent: {len(components)}")
-    print(f"Komponent s návrhem:  {len(proposals)} (celkem {n_ds} PDF návrhů)")
+    print(f"Potvrzeno v párování: {len(confirmed)} komponent")
+    print(f"Heuristických návrhů: {len(proposals)} (celkem {n_ds} PDF)")
     print(f"Katalog zapsán:       {out_path}")
 
 

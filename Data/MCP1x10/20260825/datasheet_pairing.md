@@ -25,12 +25,15 @@
 | A5E56183142 | IC_SWITCH_MPF9453 | PMIC/PF9453.pdf | confirmed | NXP PF9453 (BOM „MPF") |
 | A5E56410869 | IC_INTERFACE_74LV8T541 | Logic/sn74lv8t541.pdf | confirmed | TI SN74LV8T541 |
 | A5E00439671 | IC_INTERFACE_74VHC125 | Logic/TII_SN74AHC125_Datasheet_RevO_202402.pdf | confirmed | náhrada VHC→AHC (schváleno) |
-| A5E56245815 | IC_DDR4_128MB_x16 | RAM/W66BP6RB_W66CP2RQ_SDP_DDP_LPDDR4_LPDDR4X_combo_datasheet_A01-001_20250908.pdf | confirmed | COMMENT ponechán DDR4; DS je LPDDR4/X |
+| A5E56245815 | IC_DDR4_128MB_x16 | RAM/43-46LQ16128A-AL.pdf | confirmed | ISSI IS43/46LQ16128A LPDDR4/X 128M×16 — **primární** (TeamCenter) |
+| A5E56245815 | IC_DDR4_128MB_x16 | RAM/W66BP6RB_W66CP2RQ_SDP_DDP_LPDDR4_LPDDR4X_combo_datasheet_A01-001_20250908.pdf | confirmed | Winbond W66BP6RB/CP2RQ LPDDR4/X — **alternativa** (2. zdroj); COMMENT ponechán DDR4 |
 | A5E52725522 | Adjustable Current Limited Load Switch | Current_Limit_Switch/tps22950.pdf | confirmed | TI TPS22950 |
 | A5E00063809 | IC_EEPROM_2Kbitx8_SOP8 | EEPROM/STD_m24c16-W.pdf | confirmed | M24C16 = 16Kbit = 2K×8 |
 | A5E00769943 | IC_GATE_74AHC08 | Logic/TII_SN54AHC08_Datasheet_08222023.pdf | confirmed | SN54AHC08 = AHC08 (mil. grade) |
 | A5E32187779 | IC_PERI_TUSB2046BI | Interface/tusb2046bi.pdf | confirmed | TUSB2046BVF = TUSB2046 (COMMENT „BI") |
 | A5E56147206 | IC_INTERFACE_LAN96455S | Ethernet_Switch/LAN9645xS-Data-Sheet-DS00006066.pdf | confirmed | LAN9645**x**S, x=počet portů; 5S=5-port → DS pokrývá (ověřeno v PDF) |
+| A5E56147206 | IC_INTERFACE_LAN96455S | Ethernet_Switch/lan96459f hardware design checklist (managed mode) rev b.pdf | confirmed | HW design checklist (managed) rodiny LAN9645x — sloučeno do workspace A5E56147206 |
+| A5E56147206 | IC_INTERFACE_LAN96455S | Ethernet_Switch/lan96459f hardware design checklist (unmanaged mode) rev b.pdf | confirmed | HW design checklist (unmanaged) — dtto |
 | A5E56183582 | IC_NOR-xSPI_256Mbit/32Mbyte | Flash/QSPI-Flash/IS25LP(WP)256D.pdf | confirmed | IS25LP256 = 256Mbit NOR QSPI |
 | A5E56183107 | IC_MCU_P_MIMX9121CVVXCAB | Processor/IMX91IEC.pdf | confirmed | i.MX91 datasheet |
 | A5E56183107 | IC_MCU_P_MIMX9121CVVXCAB | Processor/IMX91RM.pdf | confirmed | i.MX91 reference manual |
@@ -41,11 +44,12 @@
 ## Rozhodnuto (uživatel)
 
 - **74VHC125** (`A5E00439671`) → `SN74AHC125` jako **náhrada** (VHC→AHC schváleno).
-- **DDR4 128MB x16** (`A5E56245815`) → `W66…LPDDR4/X` (COMMENT ponechán DDR4).
+- **DDR4 128MB x16** (`A5E56245815`) → primární `IS43/46LQ16128A` (ISSI, TeamCenter), alternativa
+  `W66…LPDDR4/X` (Winbond, 2. zdroj). Obě LPDDR4/X 128M×16; COMMENT ponechán DDR4.
 - **Load switch** (`A5E52725522`) → `TPS22950`.
 
-Krystaly/oscilátory (méně důležité pro power analýzu) — přiřaď jen pokud chceš:
-`Oscilator/NDK_NZ2520SH_e.pdf`.
+Krystaly/oscilátory (méně důležité pro power analýzu): `Oscilator/NDK_NZ2520SH_e.pdf`
+→ **archivováno** (`Components/Archive/Oscilator/`). Pokud bude potřeba, vrátit z Archive a spárovat.
 
 ## Plánované / předpostavené v indexu (příští verze schématu)
 
@@ -65,14 +69,21 @@ Krystaly/oscilátory (méně důležité pro power analýzu) — přiřaď jen p
 
 ## Osiřelá PDF (future/historické — bez protějšku v Partlistu, NEpárovat)
 
-Datasheety připravené k pozdějšímu použití nebo dříve zvažované a nakonec nepoužité:
+Již přeřazené / archivované (pro traceability):
 
-> Pozn.: buck (`lm76005`, `tps62097`), induktory (`A5E37725181/46604141/47990248/53512827`) a
-> `MAX17526` byly přesunuty do sekce **Plánované / předpostavené v indexu** (viz výše).
+> - buck (`lm76005`, `tps62097`), induktory (`A5E37725181/46604141/47990248/53512827`) a `MAX17526`
+>   → sekce **Plánované / předpostavené v indexu** (viz výše).
+> - `lan96459f` checklisty (managed/unmanaged) → **confirmed pod `A5E56147206`** (viz tabulka výše).
+> - `RAM/43-46LQ16128A-AL.pdf` → **confirmed primární pod `A5E56245815`** (ISSI, TeamCenter).
+> - `quadraturencoder/*` (`rm0490`, `stm32c011f4`, `mspm0c1105`) — MCU kandidáti pro enkodér,
+>   neosazeni → **archivováno** (mimo scope power analýzy).
+> - `Oscilator/NDK_NZ2520SH_e.pdf` — oscilátor, není v Partlistu → **archivováno**.
 
-- `Ethernet_Switch/lan96459f … (managed mode) rev b.pdf` — LAN96459F, ne LAN96455S.
-- `Ethernet_Switch/lan96459f … (unmanaged mode) rev b.pdf` — dtto.
-- `quadraturencoder/stm/rm0490-…stm32c0…pdf` — kandidát MCU pro enkodér, neosazen.
-- `quadraturencoder/stm/stm32c011f4.pdf` — dtto.
-- `quadraturencoder/ti/mspm0c1105.pdf` — dtto.
-- `RAM/43-46LQ16128A-AL.pdf` — nevybraný (zvolen W66 LPDDR4).
+### Konvence Archive (zdroj + index sjednoceny)
+
+> Složka **`Components/Archive/`** = vyřazená / mimo-scope PDF. Proces ji **ignoruje** na obou
+> stranách: katalog (`build_component_catalog.py` → `index_pdfs` přeskakuje `Archive`) i SpecPack
+> build (stavuje jen **confirmed** páry přes staging, archivní PDF se nikdy nestagují). Archivace
+> na straně indexu (`workspaces`) je tím zrcadlena na straně zdroje.
+
+_Aktuálně žádná další osiřelá PDF k ručnímu přiřazení._

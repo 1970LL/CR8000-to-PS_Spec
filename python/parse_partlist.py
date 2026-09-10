@@ -84,6 +84,51 @@ def component_key(a5e: str, comment: str, type_: str) -> str:
     return f"{a5e}__{label}" if label else a5e
 
 
+# --- Function Type (CR8000 Design Editor) -----------------------------------------
+# Prefix RefDes (písmeno) -> (kód componentKind, lidský štítek skupiny).
+# Zdroj: skills/cr8000-power-domain/SKILL.md (ověřeno křížovou kontrolou proti ISCF).
+# Partlist neobsahuje componentKind, proto ho odvozujeme z prefixu RefDes.
+FUNCTION_TYPE: dict[str, tuple[int, str]] = {
+    "A": (101, "Sestava"),
+    "B": (102, "Krystal/Osc"),
+    "C": (103, "Kondenzátor"),
+    "D": (104, "Digitální IO"),
+    "F": (106, "Pojistka"),
+    "G": (107, "Napájení/Osc"),
+    "H": (108, "LED/Žárovka"),
+    "K": (111, "Relé"),
+    "L": (112, "Cívka/Tlumivka"),
+    "N": (114, "Analogové IO"),
+    "P": (116, "Testpoint"),
+    "Q": (117, "Ostatní"),
+    "R": (118, "Rezistor"),
+    "S": (119, "Spínač"),
+    "T": (120, "Transformátor/Měnič"),
+    "U": (121, "Optočlen"),
+    "V": (122, "Dioda/Tranzistor"),
+    "W": (123, "Anténa"),
+    "X": (124, "Konektor"),
+    "Z": (126, "Filtr"),
+    "WS": (128, "Propojka"),
+}
+
+
+def refdes_prefix(refdes: str) -> str:
+    """Vedoucí abecední část RefDes (velká písmena). ``R100`` -> ``R``; ``WS1`` -> ``WS``."""
+    m = re.match(r"[A-Za-z]+", refdes or "")
+    return m.group(0).upper() if m else ""
+
+
+def function_type(refdes: str) -> tuple[int, str]:
+    """Odvodí Function Type (kód, štítek) z prefixu RefDes. Neznámý -> (999, '?')."""
+    pref = refdes_prefix(refdes)
+    if pref in FUNCTION_TYPE:
+        return FUNCTION_TYPE[pref]
+    if pref[:1] in FUNCTION_TYPE:
+        return FUNCTION_TYPE[pref[:1]]
+    return (999, "?")
+
+
 def parse_partlist(text: str) -> list[PartRow]:
     """Řádky Partlistu -> list PartRow. Komentáře '#' a prázdné řádky se ignorují."""
     rows: list[PartRow] = []
