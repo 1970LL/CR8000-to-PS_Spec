@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>power_map — MCP1x10</title>
+<style>
+  :root { font-family: Segoe UI, Arial, sans-serif; }
+  body { margin: 1rem; color: #1b1b1b; }
+  h1 { font-size: 1.2rem; }
+  .legend { font-size: .85rem; color: #444; margin-bottom: .5rem; }
+  .toolbar { margin: .5rem 0 1rem; display: flex; gap: .5rem; flex-wrap: wrap; }
+  button { padding: .4rem .8rem; cursor: pointer; }
+  table { border-collapse: collapse; width: 100%; font-size: .82rem; }
+  th, td { border: 1px solid #bbb; padding: .25rem .4rem; text-align: left; vertical-align: top; }
+  th { background: #f0f3f7; position: sticky; top: 0; }
+  td[contenteditable="true"]:focus { outline: 2px solid #3a7afe; background: #eef4ff; }
+  tr:nth-child(even) td { background: #fafbfc; }
+  .warn { background: #fff3cd !important; }
+  .skip { color: #999; }
+  body.hide-skip tr.skip { display: none; }
+  caption { text-align: left; font-weight: 600; margin: 1rem 0 .3rem; }
+</style>
+</head>
+<body>
+  <h1>power_map — MCP1x10</h1>
+  <div class="legend">
+    Buňky lze přímo přepisovat (klikni a piš). <b>power_state</b>: ✅ počítá se / ⛔ zanedbatelné /
+    <i>uzel</i> blok toku energie (LDO/DC-DC, pojistky, feritové perly…, řeší power_tree).
+    <b>check</b>: prázdné = OK / ⚠️ nesoulad. <code>ds_*</code> se plní v kroku 3 (datasheety).
+  </div>
+  <div class="toolbar">
+    <button id="save">💾 Uložit (Chrome File System)</button>
+    <button id="download">⬇️ Stáhnout kopii</button>
+    <button id="addRow">➕ Přidat řádek</button>
+    <button id="toggleSkip">🙈 Skrýt ⛔</button>
+  </div>
+
+  <table id="pm">
+    <thead>
+      <tr><th>check</th><th>power_state</th><th>rail</th><th>rail_v</th><th>refdes</th><th>pin</th><th>a5e</th><th>type</th><th>item</th><th>value</th><th>tolerance</th><th>voltage</th><th>ds_v_min</th><th>ds_v_max</th><th>ds_curr_max</th><th>ds_curr_typ</th><th>source</th></tr>
+    </thead>
+    <tbody>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>NVCCIO_SD2</td><td></td><td>C60</td><td>1:1</td><td>A5E33119283</td><td>0805</td><td>CAP_CER_VS_0805_4.7uF_+-10%_50V_X7R</td><td>4u7</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>NVCCIO_SD2</td><td></td><td>C61</td><td>1:1</td><td>A5E33119283</td><td>0805</td><td>CAP_CER_VS_0805_4.7uF_+-10%_50V_X7R</td><td>4u7</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>NVCCIO_SD2</td><td></td><td>C172</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>NVCCIO_SD2</td><td></td><td>C175</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>NVCCIO_SD2</td><td></td><td>C517</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>NVCCIO_SD2</td><td></td><td>D1</td><td>R16:198</td><td>A5E56183107</td><td>MIMX9121CVVXCAB</td><td>IC_MCU_P_MIMX9121CVVXCAB_800MHz_FCBGA-3</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>NVCCIO_SD2</td><td></td><td>D2</td><td>39:6</td><td>A5E56183142</td><td>MPF9453</td><td>IC_SWITCH_MPF9453_QFN_40</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>NVCC_BBSM_P1V8</td><td>1.8</td><td>C59</td><td>1:1</td><td>A5E33119283</td><td>0805</td><td>CAP_CER_VS_0805_4.7uF_+-10%_50V_X7R</td><td>4u7</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>NVCC_BBSM_P1V8</td><td>1.8</td><td>C511</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>NVCC_BBSM_P1V8</td><td>1.8</td><td>D1</td><td>G12:190</td><td>A5E56183107</td><td>MIMX9121CVVXCAB</td><td>IC_MCU_P_MIMX9121CVVXCAB_800MHz_FCBGA-3</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>NVCC_BBSM_P1V8</td><td>1.8</td><td>D2</td><td>38:19</td><td>A5E56183142</td><td>MPF9453</td><td>IC_SWITCH_MPF9453_QFN_40</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>NVCC_BBSM_P1V8</td><td>1.8</td><td>R46</td><td>1:1</td><td>A5E00091722</td><td>0402</td><td>RES_MET_FLM_0402_2_100K_1%_63mW_100ppm</td><td>100K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>NVCC_BBSM_P1V8</td><td>1.8</td><td>R53</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>NVCC_BBSM_P1V8</td><td>1.8</td><td>R57</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C7</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C9</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C11</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C12</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C46</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C47</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C48</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C49</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C50</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C71</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C72</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C73</td><td>1:1</td><td>A5E33119283</td><td>0805</td><td>CAP_CER_VS_0805_4.7uF_+-10%_50V_X7R</td><td>4u7</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C107</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C109</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C110</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C112</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C162</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C163</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C164</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C166</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C167</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C169</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C176</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C178</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>C1323</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5</td><td>5</td><td>D2</td><td>2:5<br>6:25<br>7:26<br>24:33<br>25:34<br>26:35<br>37:21<br>40:7</td><td>A5E56183142</td><td>MPF9453</td><td>IC_SWITCH_MPF9453_QFN_40</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5</td><td>5</td><td>D700</td><td>16:38</td><td>A5E56101679</td><td>LP5860</td><td>IC_LED-DRIVER_LP5860_QFN40</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5</td><td>5</td><td>D1301</td><td>16:VCC</td><td>A5E00524178</td><td>26C32</td><td>IC_INTERFACE_26C32_4/0_RS422/423_5V_SOP1</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5</td><td>5</td><td>N1</td><td>2:2</td><td>A5E52725522</td><td></td><td>Adjustable Current Limited Load Switch</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5</td><td>5</td><td>N2</td><td>2:2</td><td>A5E52725522</td><td></td><td>Adjustable Current Limited Load Switch</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5</td><td>5</td><td>N3</td><td>2:2</td><td>A5E52725522</td><td></td><td>Adjustable Current Limited Load Switch</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5</td><td>5</td><td>N4</td><td>2:2</td><td>A5E52725522</td><td></td><td>Adjustable Current Limited Load Switch</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5</td><td>5</td><td>N5</td><td>2:2</td><td>A5E52725522</td><td></td><td>Adjustable Current Limited Load Switch</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5</td><td>5</td><td>N6</td><td>2:2</td><td>A5E52725522</td><td></td><td>Adjustable Current Limited Load Switch</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>R8</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P5</td><td>5</td><td>R58</td><td>1:1<br>2:2</td><td>A5E34915683</td><td>0402</td><td>RES_MET_GLS_0402_0R0</td><td>0R</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>R110</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>R124</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>R157</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>R158</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5</td><td>5</td><td>R175</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P5</td><td>5</td><td>X56</td><td>5:5<br>10:10</td><td>A5E00997955</td><td></td><td>STECK_RCK_MALE_10P_GEW_SMD-REF</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P24</td><td>24</td><td>N1100</td><td>49:26</td><td>A5E52100654</td><td>IPS8160HQ</td><td>IC_DRIVER_HIGH-SIDE_IPS8160HQ_QFN_48</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>C15</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>C16</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>C67</td><td>1:1</td><td>A5E33119281</td><td>0805</td><td>CAP_CER_VS_0805_22uF_+-10%_16V_X5R</td><td>22u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>C68</td><td>1:1</td><td>A5E33119281</td><td>0805</td><td>CAP_CER_VS_0805_22uF_+-10%_16V_X5R</td><td>22u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>C136</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>C137</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>C138</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>C139</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>C140</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>C141</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>C513</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>C514</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P1V8</td><td>1.8</td><td>D1</td><td>R10:192<br>R12:193<br>W8:194</td><td>A5E56183107</td><td>MIMX9121CVVXCAB</td><td>IC_MCU_P_MIMX9121CVVXCAB_800MHz_FCBGA-3</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P1V8</td><td>1.8</td><td>D2</td><td>29:32</td><td>A5E56183142</td><td>MPF9453</td><td>IC_SWITCH_MPF9453_QFN_40</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P1V8</td><td>1.8</td><td>D4</td><td>8:4</td><td>A5E56183582</td><td></td><td>IC_NOR-xSPI_256Mbit/32Mbyte_1.8V_+105A�‹C</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="warn">
+        <td>⚠️</td><td>✅</td><td>P1V8</td><td>1.8</td><td>D8</td><td>F1:36<br>F12:37<br>G4:38<br>G9:39<br>T4:41<br>T9:42<br>U1:43<br>U12:44</td><td>A5E56245815</td><td></td><td>IC_DDR4_128MB_x16_+95A�‹C_BGA_200</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>P6</td><td>1:1</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R13</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R14</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R15</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R16</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R17</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R18</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R23</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R24</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R25</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R26</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R37</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R38</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R39</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R40</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R41</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R135</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R136</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V8</td><td>1.8</td><td>R137</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P1V8</td><td>1.8</td><td>X28</td><td>2:2</td><td>A5E00997955</td><td></td><td>STECK_RCK_MALE_10P_GEW_SMD-REF</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P1V8</td><td>1.8</td><td>Z3</td><td>2:2</td><td>A5E01165466</td><td>Ferrit_SMD_0805</td><td>Filter_EMI_FILTER_Ferrit_SMD_0805_4A</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P1V8</td><td>1.8</td><td>Z5</td><td>1:1</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P1V8</td><td>1.8</td><td>Z500</td><td>1:1</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V15</td><td>1.15</td><td>C77</td><td>1:1</td><td>A5E33119283</td><td>0805</td><td>CAP_CER_VS_0805_4.7uF_+-10%_50V_X7R</td><td>4u7</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V15</td><td>1.15</td><td>C85</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V15</td><td>1.15</td><td>C86</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V15</td><td>1.15</td><td>C87</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V15</td><td>1.15</td><td>C88</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P1V15</td><td>1.15</td><td>C89</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P1V15</td><td>1.15</td><td>D1403</td><td>37:124<br>59:125<br>73:126<br>88:127<br>122:128</td><td>A5E56147206</td><td>LAN96455S</td><td>IC_INTERFACE_LAN96455S_5Gbps_TQFP-128</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P1V15</td><td>1.15</td><td>Z9</td><td>1:1</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P1V15</td><td>1.15</td><td>Z10</td><td>1:1</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P1V15</td><td>1.15</td><td>Z11</td><td>1:1</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C14</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C17</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C69</td><td>1:1</td><td>A5E33119281</td><td>0805</td><td>CAP_CER_VS_0805_22uF_+-10%_16V_X5R</td><td>22u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C70</td><td>1:1</td><td>A5E33119281</td><td>0805</td><td>CAP_CER_VS_0805_22uF_+-10%_16V_X5R</td><td>22u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C103</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C133</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C135</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C171</td><td>1:1</td><td>A5E33119283</td><td>0805</td><td>CAP_CER_VS_0805_4.7uF_+-10%_50V_X7R</td><td>4u7</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C179</td><td>1:1</td><td>A5E00088450</td><td>0402</td><td>CAP_CER_VS_0402_1n_+-10%_50V_X7R</td><td>1n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C180</td><td>1:1</td><td>A5E00088449</td><td>0402</td><td>CAP_CER_VS_0402_100p_+-5%_50V_COG</td><td>100p</td><td>+-5%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C500</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C515</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C516</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C707</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C709</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C711</td><td>2:2</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C1201</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C1202</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C1203</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C1601</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C1602</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C1603</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C1604</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C1605</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C1606</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C1607</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C1608</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>C1609</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1</td><td>G10:162<br>L16:195<br>N15:196<br>N16:197</td><td>A5E56183107</td><td>MIMX9121CVVXCAB</td><td>IC_MCU_P_MIMX9121CVVXCAB_800MHz_FCBGA-3</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D2</td><td>21:38<br>32:39</td><td>A5E56183142</td><td>MPF9453</td><td>IC_SWITCH_MPF9453_QFN_40</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D3</td><td>5:3</td><td>A5E56151698</td><td>TMP110</td><td>IC_TEMPERATURSENSOR_TMP110_3.3V</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D5</td><td>5:VCC</td><td>A5E01028306</td><td>74LVC1G08</td><td>IC_GATE_74LVC1G08_1.65-5.5V_SOT353</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D6</td><td>14:VCC</td><td>A5E00439671</td><td>74VHC125</td><td>IC_INTERFACE_74VHC125_3-5,5V_TSSOP14</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D7</td><td>3:29<br>14:22<br>22:24<br>25:30<br>26:16</td><td>A5E32187779</td><td>TUSB2046BVF</td><td>IC_PERI_TUSB2046BI_3.3V</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D9</td><td>20:VCC</td><td>A5E56410869</td><td>74LV8T541</td><td>IC_INTERFACE_74LV8T541_1.65:5.5V_VSSOP-</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D10</td><td>20:20</td><td>A5E00157396</td><td>74LVC244</td><td>IC_INTERFACE_74LVC244_1.65V-3.6V_TSSOP-2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D700</td><td>39:19<br>40:39</td><td>A5E56101679</td><td>LP5860</td><td>IC_LED-DRIVER_LP5860_QFN40</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1201</td><td>12:9<br>18:10</td><td>A5E47026826</td><td>SE050A2</td><td>IC_CryptoDevice_SE050A2_QFN_20</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1202</td><td>8:VCC</td><td>A5E00063809</td><td>EEPROM2Kx8ser.</td><td>IC_EEPROM_2Kbitx8_10ms_SOP8</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1302</td><td>14:VCC</td><td>A5E00769943</td><td>74AHC08</td><td>IC_GATE_74AHC08_2V-5.5V_TSSOP14</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1401</td><td>8:VCC</td><td>A5E00063809</td><td>EEPROM2Kx8ser.</td><td>IC_EEPROM_2Kbitx8_10ms_SOP8</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1601</td><td>20:20</td><td>A5E00157396</td><td>74LVC244</td><td>IC_INTERFACE_74LVC244_1.65V-3.6V_TSSOP-2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1602</td><td>20:20</td><td>A5E00157396</td><td>74LVC244</td><td>IC_INTERFACE_74LVC244_1.65V-3.6V_TSSOP-2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1603</td><td>20:20</td><td>A5E00157396</td><td>74LVC244</td><td>IC_INTERFACE_74LVC244_1.65V-3.6V_TSSOP-2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1604</td><td>20:20</td><td>A5E00157396</td><td>74LVC244</td><td>IC_INTERFACE_74LVC244_1.65V-3.6V_TSSOP-2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1605</td><td>20:20</td><td>A5E00157396</td><td>74LVC244</td><td>IC_INTERFACE_74LVC244_1.65V-3.6V_TSSOP-2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1606</td><td>20:20</td><td>A5E00157396</td><td>74LVC244</td><td>IC_INTERFACE_74LVC244_1.65V-3.6V_TSSOP-2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1607</td><td>20:20</td><td>A5E00157396</td><td>74LVC244</td><td>IC_INTERFACE_74LVC244_1.65V-3.6V_TSSOP-2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1608</td><td>20:20</td><td>A5E00157396</td><td>74LVC244</td><td>IC_INTERFACE_74LVC244_1.65V-3.6V_TSSOP-2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>D1609</td><td>20:20</td><td>A5E00157396</td><td>74LVC244</td><td>IC_INTERFACE_74LVC244_1.65V-3.6V_TSSOP-2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R2</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R35</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R36</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R42</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R43</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R52</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R60</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R61</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R64</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R65</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R66</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R67</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R68</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R69</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R70</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R71</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R72</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R73</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R74</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R75</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R76</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R77</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R78</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R79</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R80</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R81</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R82</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R83</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R84</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R85</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R86</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R87</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R88</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R89</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R90</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R91</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R93</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R95</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R96</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R97</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R100</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R101</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R102</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R103</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R104</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R105</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R106</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R107</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R108</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R156</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P3V3</td><td>3.3</td><td>R172</td><td>1:1</td><td>A5E34915683</td><td>0402</td><td>RES_MET_GLS_0402_0R0</td><td>0R</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R701</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1100</td><td>1:1</td><td>A5E00062736</td><td>0603</td><td>RES_MET_FLM_0603_2_10KOhm_+-1%_100mW_+-</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1101</td><td>1:1</td><td>A5E00062736</td><td>0603</td><td>RES_MET_FLM_0603_2_10KOhm_+-1%_100mW_+-</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1102</td><td>1:1</td><td>A5E00062736</td><td>0603</td><td>RES_MET_FLM_0603_2_10KOhm_+-1%_100mW_+-</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1103</td><td>1:1</td><td>A5E00062736</td><td>0603</td><td>RES_MET_FLM_0603_2_10KOhm_+-1%_100mW_+-</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1104</td><td>1:1</td><td>A5E00062736</td><td>0603</td><td>RES_MET_FLM_0603_2_10KOhm_+-1%_100mW_+-</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1105</td><td>1:1</td><td>A5E00062736</td><td>0603</td><td>RES_MET_FLM_0603_2_10KOhm_+-1%_100mW_+-</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1106</td><td>1:1</td><td>A5E00062736</td><td>0603</td><td>RES_MET_FLM_0603_2_10KOhm_+-1%_100mW_+-</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1107</td><td>1:1</td><td>A5E00062736</td><td>0603</td><td>RES_MET_FLM_0603_2_10KOhm_+-1%_100mW_+-</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1122</td><td>1:1</td><td>A5E00062736</td><td>0603</td><td>RES_MET_FLM_0603_2_10KOhm_+-1%_100mW_+-</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1207</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1208</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1211</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1500</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1501</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1502</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1503</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1504</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1505</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1506</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1507</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1508</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1510</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1511</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1512</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1513</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P3V3</td><td>3.3</td><td>R1514</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>S32</td><td>2:2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>S34</td><td>2:2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>S1509</td><td>2:2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>V3</td><td>E:1</td><td>A5E36751165</td><td>BCW68G</td><td>TRANS_PNP_BCW68G_32V_500mA_SOT23</td><td>32 V</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>V4</td><td>E:1</td><td>A5E36751165</td><td>BCW68G</td><td>TRANS_PNP_BCW68G_32V_500mA_SOT23</td><td>32 V</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>V1100</td><td>K:2</td><td>A5E43768276</td><td>BAT54JFILM</td><td>DIO_SCHOTTKY_BAT54JFILM_40V_300mA_SOD323</td><td></td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>V1101</td><td>K:2</td><td>A5E43768276</td><td>BAT54JFILM</td><td>DIO_SCHOTTKY_BAT54JFILM_40V_300mA_SOD323</td><td></td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>V1102</td><td>K:2</td><td>A5E43768276</td><td>BAT54JFILM</td><td>DIO_SCHOTTKY_BAT54JFILM_40V_300mA_SOD323</td><td></td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>V1103</td><td>K:2</td><td>A5E43768276</td><td>BAT54JFILM</td><td>DIO_SCHOTTKY_BAT54JFILM_40V_300mA_SOD323</td><td></td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>V1104</td><td>K:2</td><td>A5E43768276</td><td>BAT54JFILM</td><td>DIO_SCHOTTKY_BAT54JFILM_40V_300mA_SOD323</td><td></td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>V1105</td><td>K:2</td><td>A5E43768276</td><td>BAT54JFILM</td><td>DIO_SCHOTTKY_BAT54JFILM_40V_300mA_SOD323</td><td></td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>V1106</td><td>K:2</td><td>A5E43768276</td><td>BAT54JFILM</td><td>DIO_SCHOTTKY_BAT54JFILM_40V_300mA_SOD323</td><td></td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>V1107</td><td>K:2</td><td>A5E43768276</td><td>BAT54JFILM</td><td>DIO_SCHOTTKY_BAT54JFILM_40V_300mA_SOD323</td><td></td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P3V3</td><td>3.3</td><td>V1108</td><td>K:2</td><td>A5E43768276</td><td>BAT54JFILM</td><td>DIO_SCHOTTKY_BAT54JFILM_40V_300mA_SOD323</td><td></td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P3V3</td><td>3.3</td><td>Z4</td><td>2:2</td><td>A5E01165466</td><td>Ferrit_SMD_0805</td><td>Filter_EMI_FILTER_Ferrit_SMD_0805_4A</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P3V3</td><td>3.3</td><td>Z6</td><td>1:1</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P3V3</td><td>3.3</td><td>Z7</td><td>1:1</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P3V3</td><td>3.3</td><td>Z8</td><td>1:1</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P3V3</td><td>3.3</td><td>Z17</td><td>1:1</td><td>A5E00166426</td><td>BLM18</td><td>REACTOR_BLM18_500mA</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5_HW</td><td>5</td><td>C177</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5_HW</td><td>5</td><td>C1315</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5_HW</td><td>5</td><td>C1316</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5_HW</td><td>5</td><td>C1317</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5_HW</td><td>5</td><td>C1318</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5_HW</td><td>5</td><td>N5</td><td>5:3</td><td>A5E52725522</td><td></td><td>Adjustable Current Limited Load Switch</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P5_HW</td><td>5</td><td>X60</td><td>1:1<br>10:10</td><td>A5E39205336</td><td>IX</td><td>PLUG_IX-BF_MALE_10P_ANG_SMD-REF</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P5_HW</td><td>5</td><td>X61</td><td>1:1<br>10:10</td><td>A5E39205336</td><td>IX</td><td>PLUG_IX-BF_MALE_10P_ANG_SMD-REF</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5_NO_0</td><td>5</td><td>C165</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5_NO_0</td><td>5</td><td>N3</td><td>5:3</td><td>A5E52725522</td><td></td><td>Adjustable Current Limited Load Switch</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P5_NO_0</td><td>5</td><td>X200</td><td>1:1</td><td>A5E00289515</td><td>53261</td><td>PLUG_RECT_MALE_8P_ANG_SMD-REF</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5_NO_1</td><td>5</td><td>C168</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5_NO_1</td><td>5</td><td>N4</td><td>5:3</td><td>A5E52725522</td><td></td><td>Adjustable Current Limited Load Switch</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P5_NO_1</td><td>5</td><td>X201</td><td>1:1</td><td>A5E00289515</td><td>53261</td><td>PLUG_RECT_MALE_8P_ANG_SMD-REF</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5_OV</td><td>5</td><td>C8</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5_OV</td><td>5</td><td>C155</td><td>2:2</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5_OV</td><td>5</td><td>C161</td><td>2:2</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5_OV</td><td>5</td><td>N6</td><td>5:3</td><td>A5E52725522</td><td></td><td>Adjustable Current Limited Load Switch</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P5_OV</td><td>5</td><td>X30</td><td>5:5</td><td>A5E00345350</td><td>EN 60603-13</td><td>PLUG_RECT_MALE_10P_STR180_DEGR,straight_</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P5_OV</td><td>5</td><td>X31</td><td>5:5</td><td>A5E00345350</td><td>EN 60603-13</td><td>PLUG_RECT_MALE_10P_STR180_DEGR,straight_</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5_USB</td><td>5</td><td>R27</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5_USB</td><td>5</td><td>R28</td><td>1:1</td><td>A5E00152738</td><td>0402</td><td>RES_MET_FLM_0402_2_10KOhm_+-1%_63mW_+-1</td><td>10K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5_USB_X12</td><td>5</td><td>C108</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5_USB_X12</td><td>5</td><td>N1</td><td>5:3</td><td>A5E52725522</td><td></td><td>Adjustable Current Limited Load Switch</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P5_USB_X12</td><td>5</td><td>X12</td><td>1:1<br>5:5</td><td>A5E51013478</td><td></td><td>PLUG_USB_FEMALE_8P_ANG_THT-REF</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>P5_USB_X13</td><td>5</td><td>C111</td><td>1:1</td><td>A5E00818233</td><td>0402</td><td>CAP_CER_VS_0402_100n_+-10%_16V_X7R</td><td>100n</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>P5_USB_X13</td><td>5</td><td>N2</td><td>5:3</td><td>A5E52725522</td><td></td><td>Adjustable Current Limited Load Switch</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>P5_USB_X13</td><td>5</td><td>X13</td><td>1:1<br>5:5</td><td>A5E51013478</td><td></td><td>PLUG_USB_FEMALE_8P_ANG_THT-REF</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>SNVS_P0V8</td><td>0.8</td><td>C512</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>SNVS_P0V8</td><td>0.8</td><td>D1</td><td>G14:191</td><td>A5E56183107</td><td>MIMX9121CVVXCAB</td><td>IC_MCU_P_MIMX9121CVVXCAB_800MHz_FCBGA-3</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="warn">
+        <td>⚠️</td><td>✅</td><td>VDD2</td><td></td><td>D8</td><td>G2:7</td><td>A5E56245815</td><td></td><td>IC_DDR4_128MB_x16_+95A�‹C_BGA_200</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C63</td><td>1:1</td><td>A5E33119281</td><td>0805</td><td>CAP_CER_VS_0805_22uF_+-10%_16V_X5R</td><td>22u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C64</td><td>1:1</td><td>A5E33119281</td><td>0805</td><td>CAP_CER_VS_0805_22uF_+-10%_16V_X5R</td><td>22u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C113</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C114</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C115</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C116</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C117</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C118</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C119</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C120</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C142</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C143</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C144</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C145</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C146</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C147</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C148</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C149</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C518</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C519</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C520</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C521</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C522</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C523</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C524</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C525</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C526</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C527</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD2_DDR</td><td></td><td>C528</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>VDD2_DDR</td><td></td><td>D1</td><td>G6:204<br>J6:205<br>J7:206<br>L6:207<br>L7:199<br>N6:200<br>N7:201<br>R6:202<br>T6:203</td><td>A5E56183107</td><td>MIMX9121CVVXCAB</td><td>IC_MCU_P_MIMX9121CVVXCAB_800MHz_FCBGA-3</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>VDD2_DDR</td><td></td><td>D2</td><td>10:24</td><td>A5E56183142</td><td>MPF9453</td><td>IC_SWITCH_MPF9453_QFN_40</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="warn">
+        <td>⚠️</td><td>✅</td><td>VDD2_DDR</td><td></td><td>D8</td><td>A4:45<br>A9:46<br>AA3:68<br>AA5:69<br>AA8:70<br>AA10:71<br>AB4:47<br>AB9:48<br>B3:72<br>B5:73<br>B8:74<br>B10:75<br>D1:76<br>D5:77<br>D8:78<br>D12:79<br>F3:80<br>F5:49<br>F8:50<br>F10:81<br>H1:51<br>H5:52<br>H8:53<br>H12:40<br>K1:54<br>K3:55<br>K10:56<br>K12:57<br>N1:58<br>N3:59<br>N10:60<br>N12:61<br>R1:62<br>R5:63<br>R8:64<br>R12:65<br>U3:82<br>U5:66<br>U8:67<br>U10:83<br>W1:84<br>W5:85<br>W8:86<br>W12:87</td><td>A5E56245815</td><td></td><td>IC_DDR4_128MB_x16_+95A�‹C_BGA_200</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDD2_DDR</td><td></td><td>Z1</td><td>2:2</td><td>A5E01165466</td><td>Ferrit_SMD_0805</td><td>Filter_EMI_FILTER_Ferrit_SMD_0805_4A</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAH_PHY</td><td></td><td>C95</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAH_PHY</td><td></td><td>C96</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAH_PHY</td><td></td><td>C97</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAH_PHY</td><td></td><td>C98</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAH_PHY</td><td></td><td>C99</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAH_PHY</td><td></td><td>C100</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>VDDAH_PHY</td><td></td><td>D1403</td><td>6:111<br>16:110<br>25:109<br>107:108<br>116:107<br>128:106</td><td>A5E56147206</td><td>LAN96455S</td><td>IC_INTERFACE_LAN96455S_5Gbps_TQFP-128</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDDAH_PHY</td><td></td><td>Z7</td><td>2:2</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAH_SRDS</td><td></td><td>C101</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAH_SRDS</td><td></td><td>C102</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>VDDAH_SRDS</td><td></td><td>D1403</td><td>44:105<br>47:114<br>52:104<br>54:113</td><td>A5E56147206</td><td>LAN96455S</td><td>IC_INTERFACE_LAN96455S_5Gbps_TQFP-128</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDDAH_SRDS</td><td></td><td>Z8</td><td>2:2</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAL_PHY</td><td></td><td>C78</td><td>1:1</td><td>A5E33119283</td><td>0805</td><td>CAP_CER_VS_0805_4.7uF_+-10%_50V_X7R</td><td>4u7</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAL_PHY</td><td></td><td>C80</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAL_PHY</td><td></td><td>C81</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAL_PHY</td><td></td><td>C82</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAL_PHY</td><td></td><td>C83</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAL_PHY</td><td></td><td>C84</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>VDDAL_PHY</td><td></td><td>D1403</td><td>3:103<br>15:102<br>28:101<br>104:100<br>119:99</td><td>A5E56147206</td><td>LAN96455S</td><td>IC_INTERFACE_LAN96455S_5Gbps_TQFP-128</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDDAL_PHY</td><td></td><td>Z9</td><td>2:2</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDDAL_PLL</td><td></td><td>R10</td><td>1:1</td><td>A5E31291413</td><td>0603</td><td>AUTO_RES_THICK_FLM_0603_10R_1%_100mW</td><td>10R</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDDAL_PLL</td><td></td><td>Z11</td><td>2:2</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAL_SRDS</td><td></td><td>C75</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDAL_SRDS</td><td></td><td>C76</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDDAL_SRDS</td><td></td><td>Z10</td><td>2:2</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDDIO_A</td><td></td><td>R1401</td><td>1:1</td><td>A5E34915683</td><td>0402</td><td>RES_MET_GLS_0402_0R0</td><td>0R</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDDIO_A</td><td></td><td>R1402</td><td>1:1</td><td>A5E34915683</td><td>0402</td><td>RES_MET_GLS_0402_0R0</td><td>0R</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDDIO_A</td><td></td><td>R1403</td><td>1:1</td><td>A5E34915683</td><td>0402</td><td>RES_MET_GLS_0402_0R0</td><td>0R</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_A_D</td><td></td><td>C79</td><td>1:1</td><td>A5E33119283</td><td>0805</td><td>CAP_CER_VS_0805_4.7uF_+-10%_50V_X7R</td><td>4u7</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_A_D</td><td></td><td>C90</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_A_D</td><td></td><td>C91</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>VDDIO_A_D</td><td></td><td>D1403</td><td>58:121<br>96:116</td><td>A5E56147206</td><td>LAN96455S</td><td>IC_INTERFACE_LAN96455S_5Gbps_TQFP-128</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_A_D</td><td></td><td>R63</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_A_D</td><td></td><td>R1400</td><td>1:1</td><td>A5E00091722</td><td>0402</td><td>RES_MET_FLM_0402_2_100K_1%_63mW_100ppm</td><td>100K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_A_D</td><td></td><td>R1408</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_A_D</td><td></td><td>R1409</td><td>1:1</td><td>A5E00309271</td><td>0402</td><td>RES_MET_FLM_0402_2_02_4K7_1%_63mW_100ppm</td><td>4K7</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDDIO_A_D</td><td></td><td>Z6</td><td>2:2</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>C74</td><td>1:1</td><td>A5E33119283</td><td>0805</td><td>CAP_CER_VS_0805_4.7uF_+-10%_50V_X7R</td><td>4u7</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>C92</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>C93</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>C94</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>C104</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>C105</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>C106</td><td>1:1</td><td>A5E41782197</td><td>0603</td><td>CAP_CER_VS_0603_100nF_+-10%_50V_X7R</td><td>100n</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>VDDIO_P1V8</td><td>1.8</td><td>D1403</td><td>32:122<br>39:123<br>69:119<br>77:120<br>84:117<br>92:118</td><td>A5E56147206</td><td>LAN96455S</td><td>IC_INTERFACE_LAN96455S_5Gbps_TQFP-128</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1422</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1423</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1424</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1425</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1426</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1427</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1428</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1444</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1445</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1446</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1447</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1448</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1449</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1450</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1452</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1453</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1454</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1455</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1456</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1457</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDIO_P1V8</td><td>1.8</td><td>R1458</td><td>2:2</td><td>A5E00152671</td><td>0402</td><td>RES_MET_FLM_0402_2_1KOhm_+-1%_63mW_+-10</td><td>1K</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDDIO_P1V8</td><td>1.8</td><td>Z5</td><td>2:2</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDDQ</td><td></td><td>R147</td><td>2:2</td><td>A5E00313373</td><td>0402</td><td>RES_MET_FLM_0402_120R_+-1%_63mW_+-100ppm</td><td>120R</td><td>+-1%</td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_ANA_P0V8</td><td>0.8</td><td>C62</td><td>1:1</td><td>A5E33119283</td><td>0805</td><td>CAP_CER_VS_0805_4.7uF_+-10%_50V_X7R</td><td>4u7</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_ANA_P0V8</td><td>0.8</td><td>C529</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_ANA_P0V8</td><td>0.8</td><td>C530</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_ANA_P0V8</td><td>0.8</td><td>C531</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_ANA_P0V8</td><td>0.8</td><td>C532</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_ANA_P0V8</td><td>0.8</td><td>C533</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>VDD_ANA_P0V8</td><td>0.8</td><td>D1</td><td>F10:171<br>J15:170<br>J16:169<br>R14:168</td><td>A5E56183107</td><td>MIMX9121CVVXCAB</td><td>IC_MCU_P_MIMX9121CVVXCAB_800MHz_FCBGA-3</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>VDD_ANA_P0V8</td><td>0.8</td><td>D2</td><td>1:4</td><td>A5E56183142</td><td>MPF9453</td><td>IC_SWITCH_MPF9453_QFN_40</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_ANA_P1V8</td><td>1.8</td><td>C534</td><td>1:1</td><td>A5E33119281</td><td>0805</td><td>CAP_CER_VS_0805_22uF_+-10%_16V_X5R</td><td>22u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_ANA_P1V8</td><td>1.8</td><td>C535</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_ANA_P1V8</td><td>1.8</td><td>C536</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_ANA_P1V8</td><td>1.8</td><td>C537</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_ANA_P1V8</td><td>1.8</td><td>C538</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_ANA_P1V8</td><td>1.8</td><td>C539</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_ANA_P1V8</td><td>1.8</td><td>C540</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>VDD_ANA_P1V8</td><td>1.8</td><td>D1</td><td>E8:167<br>F16:166<br>G16:165<br>L15:163<br>R8:164</td><td>A5E56183107</td><td>MIMX9121CVVXCAB</td><td>IC_MCU_P_MIMX9121CVVXCAB_800MHz_FCBGA-3</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDD_ANA_P1V8</td><td>1.8</td><td>Z500</td><td>2:2</td><td>A5E00129901</td><td>FB_S0603UP</td><td>Filter_EMI_FILTER EMI filter_FB_S0603UP</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_SD2</td><td></td><td>C170</td><td>1:1</td><td>A5E33119283</td><td>0805</td><td>CAP_CER_VS_0805_4.7uF_+-10%_50V_X7R</td><td>4u7</td><td>+-10%</td><td>50 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>VDD_SD2</td><td></td><td>D2</td><td>33:40</td><td>A5E56183142</td><td>MPF9453</td><td>IC_SWITCH_MPF9453_QFN_40</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDD_SD2</td><td></td><td>R171</td><td>1:1</td><td>A5E34915683</td><td>0402</td><td>RES_MET_GLS_0402_0R0</td><td>0R</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_SOC_P0V85</td><td>0.85</td><td>C65</td><td>1:1</td><td>A5E33119281</td><td>0805</td><td>CAP_CER_VS_0805_22uF_+-10%_16V_X5R</td><td>22u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_SOC_P0V85</td><td>0.85</td><td>C66</td><td>1:1</td><td>A5E33119281</td><td>0805</td><td>CAP_CER_VS_0805_22uF_+-10%_16V_X5R</td><td>22u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_SOC_P0V85</td><td>0.85</td><td>C502</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_SOC_P0V85</td><td>0.85</td><td>C503</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_SOC_P0V85</td><td>0.85</td><td>C504</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_SOC_P0V85</td><td>0.85</td><td>C505</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_SOC_P0V85</td><td>0.85</td><td>C506</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_SOC_P0V85</td><td>0.85</td><td>C507</td><td>1:1</td><td>A5E02477164</td><td>0603</td><td>CAP_CER_VS_SMD_0603_1u_+-10%_16V_X7R</td><td>1u</td><td>+-10%</td><td>16 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_SOC_P0V85</td><td>0.85</td><td>C509</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr class="skip">
+        <td></td><td>⛔</td><td>VDD_SOC_P0V85</td><td>0.85</td><td>C510</td><td>1:1</td><td>A5E00374261</td><td>0805</td><td>CAP_CER_VS_0805_2_03_10uF_+-10%_10V_X7R</td><td>10u</td><td>+-10%</td><td>10 V</td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>VDD_SOC_P0V85</td><td>0.85</td><td>D1</td><td>J9:189<br>J10:188<br>J11:187<br>J12:186<br>J13:185<br>K9:184<br>K10:183<br>K12:182<br>K13:181<br>M9:180<br>M10:179<br>M12:178<br>M13:177<br>N9:176<br>N10:175<br>N11:174<br>N12:173<br>N13:172</td><td>A5E56183107</td><td>MIMX9121CVVXCAB</td><td>IC_MCU_P_MIMX9121CVVXCAB_800MHz_FCBGA-3</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>✅</td><td>VDD_SOC_P0V85</td><td>0.85</td><td>D2</td><td>3:29</td><td>A5E56183142</td><td>MPF9453</td><td>IC_SWITCH_MPF9453_QFN_40</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td>uzel</td><td>VDD_SOC_P0V85</td><td>0.85</td><td>Z2</td><td>2:2</td><td>A5E01165466</td><td>Ferrit_SMD_0805</td><td>Filter_EMI_FILTER_Ferrit_SMD_0805_4A</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table id="totals">
+    <caption>Sumy po railech (doplní krok 5)</caption>
+    <thead>
+      <tr><th>rail</th><th>rail_v</th><th>sum ds_curr_max [mA]</th><th>sum ds_curr_typ [mA]</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>NVCCIO_SD2</td><td></td><td></td><td></td></tr>
+      <tr><td>NVCC_BBSM_P1V8</td><td></td><td></td><td></td></tr>
+      <tr><td>P5</td><td></td><td></td><td></td></tr>
+      <tr><td>P24</td><td></td><td></td><td></td></tr>
+      <tr><td>P1V8</td><td></td><td></td><td></td></tr>
+      <tr><td>P1V15</td><td></td><td></td><td></td></tr>
+      <tr><td>P3V3</td><td></td><td></td><td></td></tr>
+      <tr><td>P5_HW</td><td></td><td></td><td></td></tr>
+      <tr><td>P5_NO_0</td><td></td><td></td><td></td></tr>
+      <tr><td>P5_NO_1</td><td></td><td></td><td></td></tr>
+      <tr><td>P5_OV</td><td></td><td></td><td></td></tr>
+      <tr><td>P5_USB</td><td></td><td></td><td></td></tr>
+      <tr><td>P5_USB_X12</td><td></td><td></td><td></td></tr>
+      <tr><td>P5_USB_X13</td><td></td><td></td><td></td></tr>
+      <tr><td>SNVS_P0V8</td><td></td><td></td><td></td></tr>
+      <tr><td>VDD2</td><td></td><td></td><td></td></tr>
+      <tr><td>VDD2_DDR</td><td></td><td></td><td></td></tr>
+      <tr><td>VDDAH_PHY</td><td></td><td></td><td></td></tr>
+      <tr><td>VDDAH_SRDS</td><td></td><td></td><td></td></tr>
+      <tr><td>VDDAL_PHY</td><td></td><td></td><td></td></tr>
+      <tr><td>VDDAL_PLL</td><td></td><td></td><td></td></tr>
+      <tr><td>VDDAL_SRDS</td><td></td><td></td><td></td></tr>
+      <tr><td>VDDIO_A</td><td></td><td></td><td></td></tr>
+      <tr><td>VDDIO_A_D</td><td></td><td></td><td></td></tr>
+      <tr><td>VDDIO_P1V8</td><td></td><td></td><td></td></tr>
+      <tr><td>VDDQ</td><td></td><td></td><td></td></tr>
+      <tr><td>VDD_ANA_P0V8</td><td></td><td></td><td></td></tr>
+      <tr><td>VDD_ANA_P1V8</td><td></td><td></td><td></td></tr>
+      <tr><td>VDD_SD2</td><td></td><td></td><td></td></tr>
+      <tr><td>VDD_SOC_P0V85</td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+<script>
+  // Všechny datové buňky jsou editovatelné.
+  function makeEditable() {
+    document.querySelectorAll('tbody td').forEach(td => td.contentEditable = 'true');
+  }
+  makeEditable();
+
+  document.getElementById('addRow').addEventListener('click', () => {
+    const tb = document.querySelector('#pm tbody');
+    const cols = document.querySelectorAll('#pm thead th').length;
+    const tr = document.createElement('tr');
+    for (let i = 0; i < cols; i++) { const td = document.createElement('td'); td.contentEditable = 'true'; tr.appendChild(td); }
+    tb.appendChild(tr);
+  });
+
+  document.getElementById('toggleSkip').addEventListener('click', (e) => {
+    document.body.classList.toggle('hide-skip');
+    e.target.textContent = document.body.classList.contains('hide-skip') ? '👁️ Zobrazit ⛔' : '🙈 Skrýt ⛔';
+  });
+
+  function currentHTML() {
+    return '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  }
+
+  // Uložení zpět do souboru přes File System Access API (Chrome). Fallback = stažení.
+  let fileHandle = null;
+  document.getElementById('save').addEventListener('click', async () => {
+    try {
+      if (!fileHandle) {
+        fileHandle = await window.showSaveFilePicker({
+          suggestedName: 'power_map_MCP1x10.html',
+          types: [{ description: 'HTML', accept: { 'text/html': ['.html'] } }]
+        });
+      }
+      const w = await fileHandle.createWritable();
+      await w.write(currentHTML());
+      await w.close();
+      alert('Uloženo.');
+    } catch (e) { alert('Uložení zrušeno nebo nepodporováno: ' + e.message); }
+  });
+
+  document.getElementById('download').addEventListener('click', () => {
+    const blob = new Blob([currentHTML()], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'power_map_MCP1x10.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+</script>
+</body>
+</html>
